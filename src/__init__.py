@@ -1,4 +1,4 @@
-import data
-import models
-import train_test
-import viz
+from data import *
+from models import *
+from train_test import *
+from viz import *

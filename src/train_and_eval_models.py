@@ -1,9 +1,9 @@
 import numpy as np
 
-from .data import data_preprocess, split_data, DATA_PATH
-from .models import MODELS
-from .train_test import train_models, eval_models
-from .viz import graph
+from data import data_preprocess, split_data, DATA_PATH
+from models import MODELS
+from train_test import train_models, eval_models
+from viz import graph
 
 if __name__ == '__main__':
     data = data_preprocess(DATA_PATH)

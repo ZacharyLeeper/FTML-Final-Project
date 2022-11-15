@@ -1,4 +1,4 @@
-from fairlearn.reductions import DemographicParity, EqualizedOdds, GridSearch
+from fairlearn.reductions import DemographicParity, EqualizedOdds
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.model_selection import KFold
 from sklearn.neural_network import MLPRegressor
@@ -10,29 +10,22 @@ MODELS = ['Logistic reg. with EO', 'NN reg.', 'NN reg. with DP', 'NN reg. with E
 def logistic_reg_eo():
     cv = KFold()
     eo = EqualizedOdds()
-
-    model = LogisticRegressionCV(solver='liblinear', Cs=1.0, cv=cv, fit_intercept=True)
-    algorithm = GridSearch(model, constraints=eo)
-    return algorithm
+    model = LogisticRegressionCV(solver='liblinear', Cs=1, cv=cv, fit_intercept=True)
+    return model, eo
 
 def nn_reg():
-    model = MLPRegressor(solver='SGD', learning_rate='invscaling')
-    algorithm = GridSearch(model)
-    return algorithm
+    model = MLPRegressor(solver='sgd', learning_rate='invscaling')
+    return model, None
 
 def nn_reg_dp():
     dp = DemographicParity()
-
-    model = MLPRegressor(solver='SGD', learning_rate='invscaling')
-    algorithm = GridSearch(model, constraints=dp)
-    return algorithm
+    model = MLPRegressor(solver='sgd', learning_rate='invscaling')
+    return model, dp
 
 def nn_reg_eo():
     eo = EqualizedOdds()
-
-    model = MLPRegressor(solver='SGD', learning_rate='invscaling')
-    algorithm = GridSearch(model, constraints=eo)
-    return algorithm
+    model = MLPRegressor(solver='sgd', learning_rate='invscaling')
+    return model, eo
     
 def all_models():
     return [logistic_reg_eo(), nn_reg(), nn_reg_dp(), nn_reg_eo()]

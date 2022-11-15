@@ -20,6 +20,7 @@ def data_preprocess(filepath):
     # Convert some object data type to int64
     gender_stat = {"Female": 0, "Male": 1}
     yes_no_stat = {'No' : 0,'Yes' : 1}
+    y_n_stat = {'N' : 0,'Y' : 1}
     dependents_stat = {'0':0,'1':1,'2':2,'3+':3}
     education_stat = {'Not Graduate' : 0, 'Graduate' : 1}
     property_stat = {'Semiurban' : 0, 'Urban' : 1,'Rural' : 2}
@@ -30,6 +31,7 @@ def data_preprocess(filepath):
     train_data['Education'] = train_data['Education'].replace(education_stat)
     train_data['Self_Employed'] = train_data['Self_Employed'].replace(yes_no_stat)
     train_data['Property_Area'] = train_data['Property_Area'].replace(property_stat)
+    train_data['Loan_Status'] = train_data['Loan_Status'].replace(y_n_stat)
 
     return train_data
 
