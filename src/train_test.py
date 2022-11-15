@@ -1,20 +1,22 @@
 from fairlearn.reductions import GridSearch
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import log_loss
 from models import all_models, MODELS
 
 def train_models(data, labels):
     trained_models = []
-    for (model, constraint), model_name in zip(all_models(), MODELS):
+    for model, constraint in all_models():
         if constraint:
             model = GridSearch(model, constraint)
-            trained_models.append(model.fit(data, labels, sensitive_features=data['Gender']))
+            model.fit(data, labels, sensitive_features=data['Gender'])
+            trained_models.append(model)
         else:
-            trained_models.append(model.fit(data, labels))
+            model.fit(data, labels)
+            trained_models.append(model)
     return trained_models
 
 def eval_models(models, data, labels):
-    accuracy = []
+    nll = []
     for model in models:
         pred = model.predict(data)
-        accuracy.append(accuracy_score(labels, pred))
-    return accuracy
+        nll.append(log_loss(labels, pred))
+    return nll

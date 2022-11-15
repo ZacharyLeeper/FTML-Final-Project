@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-results_dir = 'results'
+results_dir = '../results'
 
 def graph(all_models, all_metrics, xlabel, ylabel, legend, save_dir=None, name=None):
     for x,y in zip(all_models, all_metrics):
