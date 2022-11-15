@@ -9,6 +9,6 @@ if __name__ == '__main__':
     data = data_preprocess(DATA_PATH)
     train, test = split_data(data)
 
-    models = train_models(*train)
-    accuracy = eval_models(models, *test)
+    models, thresholds = train_models(*train)
+    accuracy = eval_models(models, thresholds, *test)
     graph(np.arange(4), accuracy, 'Model', 'Accuracy', MODELS, 'test', 'accuracy')
