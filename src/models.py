@@ -7,7 +7,7 @@ __all__ = ['logistic_reg_eo', 'nn_reg', 'nn_reg_dp', 'nn_reg_eo', 'all_models', 
 
 MODELS = ['Logistic reg. with EO', 'NN reg.', 'NN reg. with DP', 'NN reg. with EO']
 LR_PARAMS = {'solver':'liblinear', 'cv':KFold(), 'fit_intercept':True}
-NN_PARAMS = {'solver':'sgd', 'learning_rate':'invscaling', 'activation':'logistic', 'random_state':0}
+NN_PARAMS = {'solver':'lbfgs', 'activation':'logistic', 'random_state':0}
 
 def logistic_reg_eo():
     eo = EqualizedOdds()

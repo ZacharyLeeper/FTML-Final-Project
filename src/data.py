@@ -3,7 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 __all__ = ['DATA_PATH', 'data_preprocess']
 
-DATA_PATH = "./data/loan_approval_data.csv"
+DATA_PATH = "../data/loan_approval_data.csv"
 
 def data_preprocess(filepath):
     #Read CSV data
@@ -37,6 +37,8 @@ def data_preprocess(filepath):
     scaler = MinMaxScaler()
     scalables = ['Dependents', 'ApplicantIncome', 'CoapplicantIncome', 'LoanAmount', 'Loan_Amount_Term']
     train_data[scalables] = scaler.fit_transform(train_data[scalables])
+    # print(train_data)
+    # raise
 
     return train_data
 

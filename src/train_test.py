@@ -1,7 +1,6 @@
 from fairlearn.reductions import GridSearch
-from sklearn.metrics import log_loss, accuracy_score, f1_score
-from models import all_models, MODELS
-from sklearn.linear_model import LogisticRegressionCV
+from sklearn.metrics import f1_score
+from models import all_models
 
 def train_models(data, labels):
     trained_models = []
@@ -17,12 +16,11 @@ def train_models(data, labels):
 
 def eval_models(models, data, labels):
     accuracy = []
-    threshold = 0.82
+    threshold = 0.5
     for model in models:
         pred = model.predict(data)
-        print(type(model))
-        pred = pred >= 0.60
         print(pred)
+        pred = pred >= threshold
         accuracy.append(f1_score(labels, pred))
     print(accuracy)
-    raise Exception("STROP")
+    return accuracy
