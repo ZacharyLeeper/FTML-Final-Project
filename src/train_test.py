@@ -1,6 +1,7 @@
 from fairlearn.reductions import GridSearch, DemographicParity, EqualizedOdds
 from sklearn.metrics import f1_score, accuracy_score
 from models import all_models
+import random
 
 import numpy as np
 
@@ -61,17 +62,35 @@ def eval_models(models, thresholds, data, labels):
     accuracy = []
     m_accuracy = []
     f_accuracy = []
-    for threshold in thresholds:
-        print(threshold)
-    # for model, (m_thresh, f_thresh) in zip(models, thresholds):
-    #     pred = model.predict(data)
-    #     pred[data['Gender'] == 1] = pred[data['Gender'] == 1] >= m_thresh
-    #     pred[data['Gender'] == 0] = pred[data['Gender'] == 0] >= f_thresh
-    #     print(pred)
-    #     accuracy.append(f1_score(labels, pred))
-    #     m_accuracy.append(f1_score(labels[data['Gender'] == 1], pred[data['Gender'] == 1]))
-    #     f_accuracy.append(f1_score(labels[data['Gender'] == 0], pred[data['Gender'] == 0]))
-    # print(accuracy)
+    for model, (m_l, m_h, f_l, f_h) in zip(models, thresholds):
+        pred = model.predict(data)
+        # pred[data['Gender'] == 1] = pred[data['Gender'] == 1] >= m_thresh
+        # pred[data['Gender'] == 0] = pred[data['Gender'] == 0] >= f_thresh
+        # print(pred)
+        if m_l == m_h:
+            pred[data['Gender'] == 1] = pred[data['Gender'] == 1] >= m_l
+            pred[data['Gender'] == 0] = pred[data['Gender'] == 0] >= f_l
+        else:
+            for i in range(pred.shape[0]):
+                if i in data['Gender'] == 1:
+                    if pred[i] > m_h:
+                        pred[i] = 1
+                    elif pred[i] < m_l:
+                        pred[i] = 0
+                    else:
+                        pred[i] = random.randint(0, 1)
+                else:
+                    if pred[i] > f_h:
+                        pred[i] = 1
+                    elif pred[i] < f_l:
+                        pred[i] = 0
+                    else:
+                        pred[i] = random.randint(0, 1)
+
+        accuracy.append(f1_score(labels, pred))
+        m_accuracy.append(f1_score(labels[data['Gender'] == 1], pred[data['Gender'] == 1]))
+        f_accuracy.append(f1_score(labels[data['Gender'] == 0], pred[data['Gender'] == 0]))
+    print(accuracy)
     # print(m_accuracy)
     # print(f_accuracy)
     raise Exception("HERE")
