@@ -42,15 +42,15 @@ def print_model_results(models, thresholds, data, labels):
         f_pos = f_pred[f_tp_label] >= f_random_thresholds[f_tp_label]
         f_neg = f_pred[f_tn_label] < f_random_thresholds[f_tn_label]
 
-        m_tpr = np.sum((m_pos == m_label[m_tp_label])/np.sum(m_label[m_tp_label]))
-        m_fpr = np.sum((m_pos != m_label[m_tp_label])/np.sum(m_label[m_tp_label]))
-        m_tnr = np.sum((m_neg == m_label[m_tn_label])/np.sum(m_label[m_tn_label]))
-        m_fnr = np.sum((m_neg != m_label[m_tn_label])/np.sum(m_label[m_tn_label]))
+        m_tpr = np.sum((m_pos == m_label[m_tp_label])/m_label[m_tp_label].shape[0])
+        m_fpr = np.sum((m_pos != m_label[m_tp_label])/m_label[m_tp_label].shape[0])
+        m_tnr = np.sum((m_neg == m_label[m_tn_label])/m_label[m_tn_label].shape[0])
+        m_fnr = np.sum((m_neg != m_label[m_tn_label])/m_label[m_tn_label].shape[0])
 
-        f_tpr = np.sum((f_pos == f_label[f_tp_label])/np.sum(f_label[f_tp_label]))
-        f_fpr = np.sum((f_pos != f_label[f_tp_label])/np.sum(f_label[f_tp_label]))
-        f_tnr = np.sum((f_neg == f_label[f_tn_label])/np.sum(f_label[f_tn_label]))
-        f_fnr = np.sum((f_neg != f_label[f_tn_label])/np.sum(f_label[f_tn_label]))
+        f_tpr = np.sum((f_pos == f_label[f_tp_label])/f_label[f_tp_label].shape[0])
+        f_fpr = np.sum((f_pos != f_label[f_tp_label])/f_label[f_tp_label].shape[0])
+        f_tnr = np.sum((f_neg == f_label[f_tn_label])/f_label[f_tn_label].shape[0])
+        f_fnr = np.sum((f_neg != f_label[f_tn_label])/f_label[f_tn_label].shape[0])
         
         print('Model Results:')
         print(f'\tMale predictions:\n\t\tTP rate: {m_tpr}\n\t\tFP rate: {m_fpr}\n\t\tTN rate: {m_tnr}\n\t\tFN rate: {m_fnr}')
