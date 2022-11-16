@@ -11,33 +11,22 @@ def train_models(data, labels):
     for model, constraint in all_models():
         if constraint:
             model = GridSearch(model, constraint)
-            # TODO remove sensitive feature from data? - keep these values, otherwise throws an error
             model.fit(data, labels, sensitive_features=data['Gender'])
             trained_models.append(model)
             pred = model.predict(data)
-            # TODO better thresholding?
-            if isinstance(constraint, DemographicParity):
-                m_idx = data['Gender'] == 1
-                f_idx = data['Gender'] == 0
-                m_pred = pred[m_idx]
-                f_pred = pred[f_idx]
-                sub_m_pred = np.sort(m_pred[labels[m_idx] == 1])
-                sub_f_pred = np.sort(f_pred[labels[f_idx] == 1])
-                m_threshold = sub_m_pred[int(sub_m_pred.shape[0] * 0.18)]
-                f_threshold = sub_f_pred[int(sub_f_pred.shape[0] * 0.18)]
-                thresholds.append([m_threshold, m_threshold, f_threshold, f_threshold])
-            elif isinstance(constraint, EqualizedOdds):
-                m_idx = data['Gender'] == 1
-                f_idx = data['Gender'] == 0
-                m_pred = pred[m_idx]
-                f_pred = pred[f_idx]
-                sub_m_pred = np.sort(m_pred[labels[m_idx] == 1])
-                sub_f_pred = np.sort(f_pred[labels[f_idx] == 1])
-                m_threshold1 = sub_m_pred[int(sub_m_pred.shape[0] * 0.18)]
-                f_threshold1 = sub_f_pred[int(sub_f_pred.shape[0] * 0.18)]
+            m_idx = data['Gender'] == 1
+            f_idx = data['Gender'] == 0
+            m_pred = pred[m_idx]
+            f_pred = pred[f_idx]
 
-                m_pred = pred[m_idx]
-                f_pred = pred[f_idx]
+            sub_m_pred = np.sort(m_pred[labels[m_idx] == 1])
+            sub_f_pred = np.sort(f_pred[labels[f_idx] == 1])
+
+            m_threshold1 = sub_m_pred[int(sub_m_pred.shape[0] * 0.18)]
+            f_threshold1 = sub_f_pred[int(sub_f_pred.shape[0] * 0.18)]
+            if isinstance(constraint, DemographicParity):
+                thresholds.append([m_threshold1, m_threshold1, f_threshold1, f_threshold1])
+            if isinstance(constraint, EqualizedOdds):
                 sub_m_pred = np.sort(m_pred[labels[m_idx] == 0])
                 sub_f_pred = np.sort(f_pred[labels[f_idx] == 0])
                 m_threshold2 = sub_m_pred[int(sub_m_pred.shape[0] * 0.82)]
