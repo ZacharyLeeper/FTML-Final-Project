@@ -8,7 +8,7 @@ __all__ = ['logistic_reg_eo', 'nn_reg', 'nn_reg_dp', 'nn_reg_eo', 'all_models', 
 MODELS = ['Logistic reg. with EO', 'NN reg.', 'NN reg. with DP', 'NN reg. with EO']
 LR_PARAMS = {'solver':'liblinear', 'cv':KFold(), 'fit_intercept':True}
 # TODO figure out parameters
-NN_PARAMS = {'hidden_layer_sizes':(1000,), 'solver':'adam', 'activation':'relu', 'learning_rate':'invscaling', 'max_iter':500, 'random_state':0}
+NN_PARAMS = {'hidden_layer_sizes':(512,256,128,), 'solver':'adam', 'activation':'relu', 'learning_rate':'invscaling', 'max_iter':500, 'random_state':0}
 
 def logistic_reg_eo():
     eo = EqualizedOdds()

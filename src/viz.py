@@ -34,11 +34,11 @@ def print_model_results(models, thresholds, data, labels):
         f_tp_label = f_label == 1
         f_tn_label = f_label == 0
 
-        m_random_thresholds = np.random.choice([m_lo, m_hi], size=m_pred.shape[0])
+        m_random_thresholds = np.random.sample(size=m_pred.shape[0]) * (m_hi-m_lo) + m_lo
         m_pos = m_pred[m_tp_label] >= m_random_thresholds[m_tp_label]
         m_neg = m_pred[m_tn_label] < m_random_thresholds[m_tn_label]
 
-        f_random_thresholds = np.random.choice([f_lo, f_hi], size=f_pred.shape[0])
+        f_random_thresholds = np.random.sample(size=f_pred.shape[0]) * (f_hi-f_lo) + f_lo
         f_pos = f_pred[f_tp_label] >= f_random_thresholds[f_tp_label]
         f_neg = f_pred[f_tn_label] < f_random_thresholds[f_tn_label]
 
@@ -51,8 +51,11 @@ def print_model_results(models, thresholds, data, labels):
         f_fpr = np.sum((f_pos != f_label[f_tp_label])/f_label[f_tp_label].shape[0])
         f_tnr = np.sum((f_neg == f_label[f_tn_label])/f_label[f_tn_label].shape[0])
         f_fnr = np.sum((f_neg != f_label[f_tn_label])/f_label[f_tn_label].shape[0])
+
+        m_dp = np.sum(m_pos)/m_label.shape[0]
+        f_dp = np.sum(f_pos)/f_label.shape[0]
         
         print('Model Results:')
         print(f'\tMale predictions:\n\t\tTP rate: {m_tpr}\n\t\tFP rate: {m_fpr}\n\t\tTN rate: {m_tnr}\n\t\tFN rate: {m_fnr}')
         print(f'\tFemale predictions:\n\t\tTP rate: {f_tpr}\n\t\tFP rate: {f_fpr}\n\t\tTN rate: {f_tnr}\n\t\tFN rate: {f_fnr}')
-        print()
+        print(f'\tDP: Male {m_dp} | Female {f_dp}')
