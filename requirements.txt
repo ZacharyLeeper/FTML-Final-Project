@@ -1,4 +1,4 @@
-fairlearn==0.4.1
+fairlearn==0.8.0
 matplotlib==3.6.2
 numpy==1.23.4
 pandas==1.5.1
