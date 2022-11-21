@@ -15,7 +15,7 @@ if __name__ == '__main__':
 
     graph_dp(results, MODELS)
     graph_eo(results, MODELS)
-    graph_pred(results, MODELS)
+    graph_pred(results, thresholds, MODELS)
 
     filenames = [f'../models/{name}' for name in MODELS]
     save_models(models, thresholds, filenames)

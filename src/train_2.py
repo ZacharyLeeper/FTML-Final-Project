@@ -11,7 +11,12 @@ def train_models(data, labels):
     trained_models = []
     thresholds = []
     for model, _ in all_models():
-        model.fit(data, labels)
+        if not isinstance(model, MLPRegressor):
+            model = GridSearch(model, EqualizedOdds())
+            model.fit(data, labels, sensitive_features=data['Gender'])
+        else:
+            model.fit(data, labels)
+
         pred = model.predict(data)
 
         m_idx = data['Gender'] == 1

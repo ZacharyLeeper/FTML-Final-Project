@@ -1,7 +1,7 @@
 from fairlearn.reductions import DemographicParity, EqualizedOdds
 from joblib import dump, load
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.model_selection import KFold
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.tree import DecisionTreeRegressor

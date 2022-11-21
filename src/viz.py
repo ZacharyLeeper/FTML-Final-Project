@@ -86,17 +86,18 @@ def model_results(models, thresholds, data, labels):
 
 def graph_dp(results, filenames):
     for model_results, name in zip(results, filenames):
-        plt.figure()
+        plt.figure(facecolor=(.9, .9, .9), edgecolor=(.9, .9, .9))
 
         dp = model_results['dp']
-        plt.bar([0], dp[0])
-        plt.bar([1], dp[1])
+        plt.bar([0], dp[0], color='steelblue')
+        plt.bar([1], dp[1], color='palevioletred')
 
         plt.legend(['Male', 'Female'])
         plt.ylabel('Proportion of Accepted Applications')
         plt.title('Loans Received by Sex')
         plt.xticks([])
-        plt.yticks([0.25, 0.5, 0.75, 1.0], labels=['25%', '50%', '75%', '100%'])
+        labels = [i*10 for i in range(1,11)]
+        plt.yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
 
         plt.savefig(f'{results_dir}{name}_dp.png')
 
@@ -106,31 +107,34 @@ def graph_eo(results, filenames):
         fpr = model_results['fpr']
         width = 0.45
 
-        plt.figure()
+        plt.figure(facecolor=(.9, .9, .9), edgecolor=(.9, .9, .9))
 
-        plt.bar([0, 0.5], [tpr[0], fpr[0]], width=width)
-        plt.bar([1, 1.5], [tpr[1], fpr[1]], width=width)
+        plt.bar([0, 0.5], [tpr[0], fpr[0]], width=width, color='steelblue')
+        plt.bar([1, 1.5], [tpr[1], fpr[1]], width=width, color='palevioletred')
 
         plt.legend(['Male', 'Female'])
         plt.ylabel('Proportion of Accepted Applications')
         plt.title('Loans Received by Sex')
         plt.xticks([0, 1, 0.5, 1.5], labels=[*(['Will Pay Back']*2),*(['Will Default']*2)])
-        plt.yticks([0.25, 0.5, 0.75, 1.0], labels=['25%', '50%', '75%', '100%'])
+        labels = [i*10 for i in range(1,11)]
+        plt.yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
 
         plt.savefig(f'{results_dir}{name}_eo.png')
 
-def graph_pred(results, filenames):
-    for model_results, name in zip(results, filenames):
+def graph_pred(results, thresholds, filenames):
+    for model_results, t, name in zip(results, thresholds, filenames):
         pred = model_results['pred']
 
         plt.figure()
 
-        plt.scatter(np.linspace(0, 1, pred.shape[0]), pred)
-
-        # plt.legend(['Male', 'Female'])
-        # plt.ylabel('Proportion of Accepted Applications')
-        # plt.title('Loans Received by Sex')
-        # plt.xticks([0, 1, 0.5, 1.5], labels=[*(['Will Pay Back']*2),*(['Will Default']*2)])
-        # plt.yticks([0.25, 0.5, 0.75, 1.0], labels=['25%', '50%', '75%', '100%'])
+        pred_min = np.min(pred)
+        pred = pred - pred_min
+        pred_max = np.max(pred)
+        plt.scatter(np.linspace(0, 1, pred.shape[0]), pred/pred_max)
+        x = np.linspace(0, 1)
+        t1 = (np.average(t[0:2])-pred_min) / pred_max
+        t2 = (np.average(t[2:])-pred_min) / pred_max
+        plt.plot(x, np.ones(x.shape[0])*t1, color='red')
+        plt.plot(x, np.ones(x.shape[0])*t2, color='red')
 
         plt.savefig(f'{results_dir}{name}_preds.png')
