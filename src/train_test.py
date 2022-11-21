@@ -1,5 +1,7 @@
 from fairlearn.reductions import GridSearch, DemographicParity, EqualizedOdds
+from sklearn.ensemble import VotingRegressor
 from sklearn.metrics import f1_score, accuracy_score
+from sklearn.model_selection import cross_validate
 from models import all_models
 import random
 
@@ -9,6 +11,12 @@ def train_models(data, labels):
     trained_models = []
     thresholds = []
     for model, constraint in all_models():
+        # model.fit(data, labels)
+        # scores = cross_validate(model, data, labels, return_estimator=True)
+        # models = scores['estimator']
+        # print(scores)
+        # model = VotingRegressor(scores['estimator'])
+        # model.fit(data, labels)
         if constraint:
             model = GridSearch(model, constraint)
             model.fit(data, labels, sensitive_features=data['Gender'])

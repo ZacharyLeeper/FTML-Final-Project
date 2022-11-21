@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
@@ -19,12 +20,12 @@ def data_preprocess(filepath):
     train_data['Credit_History'].fillna(train_data['Credit_History'].value_counts().idxmax(), inplace=True)
 
     # Convert some object data type to int64
-    gender_stat = {"Female": 0, "Male": 1}
-    yes_no_stat = {'No' : 0,'Yes' : 1}
-    y_n_stat = {'N' : 0,'Y' : 1}
-    dependents_stat = {'0':0,'1':1,'2':2,'3+':3}
-    education_stat = {'Not Graduate' : 0, 'Graduate' : 1}
-    property_stat = {'Semiurban' : 0, 'Urban' : 1,'Rural' : 2}
+    gender_stat = {"Female": 0.0, "Male": 1.0}
+    yes_no_stat = {'No' : 0.0,'Yes' : 1.0}
+    y_n_stat = {'N' : 0.0,'Y' : 1.0}
+    dependents_stat = {'0':0.0,'1':1.0,'2':2.0,'3+':3.0}
+    education_stat = {'Not Graduate' : 0.0, 'Graduate' : 1.0}
+    property_stat = {'Semiurban' : 0.0, 'Urban' : 1.0,'Rural' : 2.0}
 
     train_data['Gender'] = train_data['Gender'].replace(gender_stat)
     train_data['Married'] = train_data['Married'].replace(yes_no_stat)
@@ -35,20 +36,29 @@ def data_preprocess(filepath):
     train_data['Loan_Status'] = train_data['Loan_Status'].replace(y_n_stat)
 
     scaler = MinMaxScaler()
-    scalables = ['Dependents', 'ApplicantIncome', 'CoapplicantIncome', 'LoanAmount', 'Loan_Amount_Term']
+    scalables = ['Dependents', 'ApplicantIncome', 'CoapplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Property_Area']
     train_data[scalables] = scaler.fit_transform(train_data[scalables])
     # print(train_data)
     # raise
 
-    return train_data
+    return train_data.iloc[:,1:]
+
+def noisy_data(data):
+    split = int(len(data)*0.8)
+    np.random.seed(0)
+    noise = np.random.normal(scale=0.8, size=data.iloc[split:,1:11].shape)
+    data.iloc[split:,1:11] += noise
+    # print(data)
+    return data
 
 def split_data(data):
     # Separate into data and labels
+    # print(data)
     split = int(len(data)*0.8)
-    x_train = data.iloc[:split,1:12]
-    y_train = data.iloc[:split,12]
+    x_train = data.iloc[:split,:11]
+    y_train = data.iloc[:split,11]
 
-    x_test = data.iloc[split:,1:12]
-    y_test = data.iloc[split:,12]
+    x_test = data.iloc[split:,:11]
+    y_test = data.iloc[split:,11]
 
     return (x_train, y_train), (x_test, y_test)
