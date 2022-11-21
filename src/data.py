@@ -45,8 +45,8 @@ def data_preprocess(filepath):
 
 def noisy_data(data):
     split = int(len(data)*0.8)
-    np.random.seed(0)
-    noise = np.random.normal(scale=0.8, size=data.iloc[split:,1:11].shape)
+    np.random.seed(100)
+    noise = np.random.normal(scale=1.0, size=data.iloc[split:,1:11].shape)
     data.iloc[split:,1:11] += noise
     # print(data)
     return data

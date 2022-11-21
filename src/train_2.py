@@ -75,7 +75,7 @@ def train_models(data, labels):
                 thresholds.append((best_m_t, best_m_t, best_f_t, best_f_t))
 
             elif constraint == 'eo':
-                violation_tolerance = 0.04
+                violation_tolerance = 0.01
                 best_accuracy = 0
                 best_m_t1 = 0.51
                 best_m_t2 = -1
@@ -85,17 +85,26 @@ def train_models(data, labels):
                     for t2 in np.linspace(np.min(f_pred), np.max(f_pred)):
                         acc = np.sum(m_pos >= t1) + np.sum(m_neg < t1) + np.sum(f_pos >= t2) + np.sum(f_neg < t2)
                         acc /= labels.shape[0]
-                        m_tp = np.sum(m_pos >= t1)/(m_pred >= t1).shape[0]
-                        m_fp = np.sum(m_neg >= t1)/(m_pred >= t1).shape[0]
-                        f_tp = np.sum(f_pos >= t2)/(f_pred >= t2).shape[0]
-                        f_fp = np.sum(f_neg >= t2)/(f_pred >= t2).shape[0]
-                        if np.abs(m_tp - f_tp) < violation_tolerance and acc > best_accuracy:
-                            print('tp', np.abs(m_tp - f_tp))
+                        m_tp = np.sum(m_pos >= t1)
+                        m_fp = np.sum(m_neg >= t1)
+                        m_tn = np.sum(m_neg < t1)
+                        m_fn = np.sum(m_pos < t1)
+                        m_tpr = m_tp/(m_tp + m_fn)
+                        m_fpr = m_fp/(m_fp + m_tn)
+
+                        f_tp = np.sum(f_pos >= t2)
+                        f_fp = np.sum(f_neg >= t2)
+                        f_tn = np.sum(f_neg < t2)
+                        f_fn = np.sum(f_pos < t2)
+                        f_tpr = f_tp/(f_tp + f_fn)
+                        f_fpr = f_fp/(f_fp + f_tn)
+                        if np.abs(m_tpr - f_tpr) < violation_tolerance and acc > best_accuracy:
+                            print('tpr', np.abs(m_tpr - f_tpr))
                             best_accuracy = acc
                             best_m_t1 = t1
                             best_f_t1 = t2
-                        if np.abs(m_fp - f_fp) < violation_tolerance and acc >= best_accuracy:
-                            print('fp', np.abs(m_fp - f_fp))
+                        if np.abs(m_fpr - f_fpr) < violation_tolerance and acc >= best_accuracy:
+                            print('fpr', np.abs(m_fpr - f_fpr))
                             best_accuracy = acc
                             best_m_t2 = t1
                             best_f_t2 = t2
