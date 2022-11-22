@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 import numpy as np
 
-results_dir = '../results/'
+results_dir = './results/'
 
 # unused
 def graph(all_models, all_metrics, xlabel, ylabel, legend, save_dir=None, name=None):
@@ -134,14 +134,14 @@ def make_sliders(fig, thresholds):
     m_avg = np.average(thresholds[:2])
     f_avg = np.average(thresholds[2:])
 
-    m_ax = fig.add_axes([0.25, 0.2, 0.75, 0.13])
-    m_threshold_slider = Slider(ax=m_ax, label='Threshold (Male)', valmin=0, valmax=1.0, valinit=m_avg)
-    f_ax = fig.add_axes([0.25, 0.1, 0.75, 0.03])
-    f_threshold_slider = Slider(ax=f_ax, label='Threshold (Female)', valmin=0, valmax=1.0, valinit=f_avg)
+    m_ax = fig.add_axes([0.15, 0.04, 0.75, 0.01])
+    m_threshold_slider = Slider(ax=m_ax, label='Threshold (Male)', valmin=0, valmax=1.0, valinit=m_avg, color = 'steelblue')
+    f_ax = fig.add_axes([0.15, 0.02, 0.75, 0.01])
+    f_threshold_slider = Slider(ax=f_ax, label='Threshold (Female)', valmin=0, valmax=1.0, valinit=f_avg, color = "palevioletred")
     return m_threshold_slider, f_threshold_slider
 
 def update_slider(model, data, labels, ax, m_slider, f_slider):
     new_thresholds = (m_slider.val, m_slider.val, f_slider.val, f_slider.val)
     results = model_results([model], [new_thresholds], data, labels)
-    graph_dp(ax[0], results[0])
-    graph_eo(ax[1], results[0])
+    # graph_dp(ax[0], results[0])
+    # graph_eo(ax[1], results[0])

@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     # plt.ion()
     fig, ax = plt.subplots(nrows=1, ncols=2, facecolor=(.9, .9, .9), edgecolor=(.9, .9, .9), label='Loan Applications Accepted')
-    fig.subplots_adjust(bottom=0.25)
+    fig.subplots_adjust(bottom=0.50)
     m_slider, f_slider = make_sliders(fig, threshold)
 
     def update_slider(val):
@@ -43,4 +43,4 @@ if __name__ == '__main__':
     fig.tight_layout()
     plt.show()
     # plt.pause(10000)
-    plt.savefig('../results/test.png')
+    plt.savefig('./results/test.png')
