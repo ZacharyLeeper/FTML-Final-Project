@@ -135,9 +135,9 @@ def make_sliders(fig, thresholds):
     f_avg = np.average(thresholds[2:])
 
     m_ax = fig.add_axes([0.15, 0.04, 0.75, 0.01])
-    m_threshold_slider = Slider(ax=m_ax, label='Threshold (Male)', valmin=0, valmax=1.0, valinit=m_avg, color = 'steelblue')
+    m_threshold_slider = Slider(ax=m_ax, label='Proportion of Population (Male)', valmin=0, valmax=1.0, valinit=m_avg, color = 'steelblue')
     f_ax = fig.add_axes([0.15, 0.02, 0.75, 0.01])
-    f_threshold_slider = Slider(ax=f_ax, label='Threshold (Female)', valmin=0, valmax=1.0, valinit=f_avg, color = "palevioletred")
+    f_threshold_slider = Slider(ax=f_ax, label='Proportion of Population (Female)', valmin=0, valmax=1.0, valinit=f_avg, color = "palevioletred")
     return m_threshold_slider, f_threshold_slider
 
 def update_slider(model, data, labels, ax, m_slider, f_slider):
