@@ -29,6 +29,8 @@ if __name__ == '__main__':
     def update_slider(val):
         new_thresholds = (m_slider.val, m_slider.val, f_slider.val, f_slider.val)
         results = model_results([model], [new_thresholds], *test)
+        ax[0].clear()
+        ax[1].clear()
         graph_dp(ax[0], results[0])
         graph_eo(ax[1], results[0])
 
