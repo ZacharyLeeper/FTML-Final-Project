@@ -46,9 +46,11 @@ def save_models(models, thresholds, filenames):
             f.writelines(str(t))
 
 # We'll worry about this one when we get there
-# def load_models(model_dir):
-#     models = []
-#     thresholds = []
-    
-#     model = load(filename)
-#     return models, thresholds
+def load_model(model_path):
+    model = load(f'{model_path}.joblib')
+    threshold = None
+    with open (f'{model_path}_t.txt') as f:
+        line = f.readline()
+        line = line.strip('( ,)').split(', ')
+        threshold = (float(line[0]), float(line[1]), float(line[2]), float(line[3]))
+    return model, threshold

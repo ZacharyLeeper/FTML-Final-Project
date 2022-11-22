@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
 import numpy as np
 
 results_dir = '../results/'
@@ -84,44 +85,34 @@ def model_results(models, thresholds, data, labels):
         results.append({'dp':dp, 'tpr':tpr, 'fpr':fpr, 'tnr':tnr, 'fnr':fnr, 'profit':profit, 'pred':pred})
     return results
 
-def graph_dp(results, filenames):
-    for model_results, name in zip(results, filenames):
-        plt.figure(facecolor=(.9, .9, .9), edgecolor=(.9, .9, .9))
+def graph_dp(ax, results):
+    dp = results['dp']
+    ax.bar([0], dp[0], color='steelblue', edgecolor='black', tick_label='')
+    ax.bar([1], dp[1], color='palevioletred', edgecolor='black', tick_label='')
 
-        dp = model_results['dp']
-        plt.bar([0], dp[0], color='steelblue')
-        plt.bar([1], dp[1], color='palevioletred')
+    ax.legend(['Male', 'Female'])
+    ax.set_ylabel('Proportion of Accepted Applications')
+    ax.set_title('Loan Applications Accepted')
+    ax.set_xticks([])
+    labels = [i*10 for i in range(1,11)]
+    ax.set_yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
 
-        plt.legend(['Male', 'Female'])
-        plt.ylabel('Proportion of Accepted Applications')
-        plt.title('Loans Received by Sex')
-        plt.xticks([])
-        labels = [i*10 for i in range(1,11)]
-        plt.yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
+def graph_eo(ax, results):
+    tpr = results['tpr']
+    fpr = results['fpr']
+    width = 0.45
 
-        plt.savefig(f'{results_dir}{name}_dp.png')
+    ax.bar([0, 0.5], [tpr[0], fpr[0]], width=width, color='steelblue', edgecolor='black', tick_label='')
+    ax.bar([1, 1.5], [tpr[1], fpr[1]], width=width, color='palevioletred', edgecolor='black', tick_label=' ')
 
-def graph_eo(results, filenames):
-    for model_results, name in zip(results, filenames):
-        tpr = model_results['tpr']
-        fpr = model_results['fpr']
-        width = 0.45
+    ax.legend(['Male', 'Female'])
+    ax.set_ylabel('Proportion of Accepted Applications')
+    ax.set_title('Loans Received by Sex')
+    ax.set_xticks([0, 1, 0.5, 1.5], labels=[*(['Will Pay Back']*2),*(['Will Default']*2)])
+    labels = [i*10 for i in range(1,11)]
+    ax.set_yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
 
-        plt.figure(facecolor=(.9, .9, .9), edgecolor=(.9, .9, .9))
-
-        plt.bar([0, 0.5], [tpr[0], fpr[0]], width=width, color='steelblue')
-        plt.bar([1, 1.5], [tpr[1], fpr[1]], width=width, color='palevioletred')
-
-        plt.legend(['Male', 'Female'])
-        plt.ylabel('Proportion of Accepted Applications')
-        plt.title('Loans Received by Sex')
-        plt.xticks([0, 1, 0.5, 1.5], labels=[*(['Will Pay Back']*2),*(['Will Default']*2)])
-        labels = [i*10 for i in range(1,11)]
-        plt.yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
-
-        plt.savefig(f'{results_dir}{name}_eo.png')
-
-def graph_pred(results, thresholds, filenames):
+def graph_pred(fig, results, thresholds, filenames):
     for model_results, t, name in zip(results, thresholds, filenames):
         pred = model_results['pred']
 
@@ -138,3 +129,18 @@ def graph_pred(results, thresholds, filenames):
         plt.plot(x, np.ones(x.shape[0])*t2, color='red')
 
         plt.savefig(f'{results_dir}{name}_preds.png')
+
+def make_sliders(fig, thresholds):
+    m_avg = np.average(thresholds[:2])
+    f_avg = np.average(thresholds[2:])
+
+    m_ax = fig.add_axes([0.25, 0.2, 0.75, 0.13])
+    m_threshold_slider = Slider(ax=m_ax, label='Threshold (Male)', valmin=0, valmax=100, valinit=m_avg)
+    f_ax = fig.add_axes([0.25, 0.1, 0.75, 0.03])
+    f_threshold_slider = Slider(ax=f_ax, label='Threshold (Female)', valmin=0, valmax=100, valinit=f_avg)
+    return m_threshold_slider, f_threshold_slider
+
+def update_slider(model, data, labels, m_slider, f_slider):
+    new_thresholds = (m_slider.val, m_slider.val, f_slider.val, f_slider.val)
+    results = model_results([model], [new_thresholds], data, labels)
+
