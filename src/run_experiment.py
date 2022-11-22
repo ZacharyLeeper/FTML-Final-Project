@@ -28,17 +28,16 @@ if __name__ == '__main__':
     pred_max = np.max(results['pred'])
 
     fig, ax = plt.subplots(nrows=1, ncols=2, facecolor=(.9, .9, .9), edgecolor=(.9, .9, .9), label='Loan Applications Accepted')
-    fig.subplots_adjust(bottom=0.25)
-    threshold = tuple([scale_threshold(threshold[i], pred_min, pred_max) for i in range(4)])
+    fig.subplots_adjust(bottom=0.50)
     m_slider, f_slider = make_sliders(fig, threshold)
 
     def update_slider(val):
-        new_threshold = (m_slider.val, m_slider.val, f_slider.val, f_slider.val)
-        scaled_threshold = tuple([scale_threshold(new_threshold[i], pred_min, pred_max) for i in range(4)])
-        results = model_results([model], [scaled_threshold], *test)[0]
-
-        graph_dp(ax[0], results)
-        graph_eo(ax[1], results)
+        new_thresholds = (m_slider.val, m_slider.val, f_slider.val, f_slider.val)
+        results = model_results([model], [new_thresholds], *test)
+        ax[0].clear()
+        ax[1].clear()
+        graph_dp(ax[0], results[0])
+        graph_eo(ax[1], results[0])
 
     m_slider.on_changed(update_slider)
     f_slider.on_changed(update_slider)
@@ -48,4 +47,5 @@ if __name__ == '__main__':
 
     fig.tight_layout()
     plt.show()
-    plt.savefig('../results/test.png')
+    # plt.pause(10000)
+    plt.savefig('./results/test.png')
