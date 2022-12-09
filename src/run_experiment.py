@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from data import data_preprocess, split_data, DATA_PATH, noisy_data
-from models import MODELS, load_model
-from train_2 import train_models
+from models import load_model
 from viz import model_results, graph_dp, graph_eo, make_sliders
+
+# Script for running experiments with stakeholders
 
 if __name__ == '__main__':
     parser = ArgumentParser()

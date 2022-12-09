@@ -4,17 +4,7 @@ import numpy as np
 
 results_dir = './results/'
 
-# unused
-def graph(all_models, all_metrics, xlabel, ylabel, legend, save_dir=None, name=None):
-    for x,y in zip(all_models, all_metrics):
-        plt.bar(x, y, width=1.0)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.legend(legend)
-
-    if save_dir and name:
-        plt.savefig(f'{results_dir}/{save_dir}/{name}.png')
-
+# Return a dict containing model predictions, accuracy, etc.
 def model_results(models, thresholds, data, labels):
     print('--------------------------------------------')
     results = []
@@ -79,12 +69,16 @@ def model_results(models, thresholds, data, labels):
         fpr = (m_fpr, f_fpr)
         tnr = (m_tnr, f_tnr)
         fnr = (m_fnr, f_fnr)
+        # "Profit" is something we made up because we thought it might help
+        # stakeholders understand how the model improves or worsens when the slider is moved,
+        # but it never really got used. It was not shown in experiments
         profit = 2000*np.sum(m_tpos) - 10000*np.sum(m_fpos) + 2000*np.sum(f_tpos) - 10000*np.sum(f_fpos)
         print(f'\tProfit:${profit}')
 
         results.append({'dp':dp, 'tpr':tpr, 'fpr':fpr, 'tnr':tnr, 'fnr':fnr, 'profit':profit, 'pred':pred})
     return results
 
+# Graph the proportion of accepted male and female applicants
 def graph_dp(ax, results):
     dp = results['dp']
     ax.bar([0], dp[0], color='steelblue', edgecolor='black', tick_label='')
@@ -97,6 +91,7 @@ def graph_dp(ax, results):
     labels = [i*10 for i in range(1,11)]
     ax.set_yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
 
+# Graph TPR and FPR for male and female applicants
 def graph_eo(ax, results):
     tpr = results['tpr']
     fpr = results['fpr']
@@ -113,24 +108,9 @@ def graph_eo(ax, results):
     labels = [i*10 for i in range(1,11)]
     ax.set_yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
 
-def graph_pred(fig, results, thresholds, filenames):
-    for model_results, t, name in zip(results, thresholds, filenames):
-        pred = model_results['pred']
-
-        plt.figure()
-
-        pred_min = np.min(pred)
-        pred = pred - pred_min
-        pred_max = np.max(pred)
-        plt.scatter(np.linspace(0, 1, pred.shape[0]), pred/pred_max)
-        x = np.linspace(0, 1)
-        t1 = (np.average(t[0:2])-pred_min) / pred_max
-        t2 = (np.average(t[2:])-pred_min) / pred_max
-        plt.plot(x, np.ones(x.shape[0])*t1, color='red')
-        plt.plot(x, np.ones(x.shape[0])*t2, color='red')
-
-        plt.savefig(f'{results_dir}{name}_preds.png')
-
+# Make sliders for the experiments, they are updated in
+# the run_experiments script because they need access to
+# global variables
 def make_sliders(fig, thresholds):
     m_avg = np.average(thresholds[:2])
     f_avg = np.average(thresholds[2:])
@@ -140,9 +120,3 @@ def make_sliders(fig, thresholds):
     f_ax = fig.add_axes([0.15, 0.02, 0.75, 0.01])
     f_threshold_slider = Slider(ax=f_ax, label='Proportion of Population (Female)', valmin=0, valmax=1.0, valinit=f_avg, color = "palevioletred")
     return m_threshold_slider, f_threshold_slider
-
-def update_slider(model, data, labels, ax, m_slider, f_slider):
-    new_thresholds = (m_slider.val, m_slider.val, f_slider.val, f_slider.val)
-    results = model_results([model], [new_thresholds], data, labels)
-    # graph_dp(ax[0], results[0])
-    # graph_eo(ax[1], results[0])

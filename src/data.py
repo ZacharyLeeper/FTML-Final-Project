@@ -6,8 +6,8 @@ __all__ = ['DATA_PATH', 'data_preprocess']
 
 DATA_PATH = "../data/loan_approval_data.csv"
 
+#Read CSV data
 def data_preprocess(filepath):
-    #Read CSV data
     data = pd.read_csv(filepath)
 
     train_data = data.copy()
@@ -38,22 +38,19 @@ def data_preprocess(filepath):
     scaler = MinMaxScaler()
     scalables = ['Dependents', 'ApplicantIncome', 'CoapplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Property_Area']
     train_data[scalables] = scaler.fit_transform(train_data[scalables])
-    # print(train_data)
-    # raise
 
     return train_data.iloc[:,1:]
 
+# Add noise to test data
 def noisy_data(data):
     split = int(len(data)*0.8)
     np.random.seed(100)
     noise = np.random.normal(scale=1.0, size=data.iloc[split:,1:11].shape)
     data.iloc[split:,1:11] += noise
-    # print(data)
     return data
 
+# Separate into data and labels
 def split_data(data):
-    # Separate into data and labels
-    # print(data)
     split = int(len(data)*0.8)
     x_train = data.iloc[:split,:11]
     y_train = data.iloc[:split,11]

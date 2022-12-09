@@ -2,8 +2,10 @@ import matplotlib.pyplot as plt
 
 from data import data_preprocess, split_data, DATA_PATH, noisy_data
 from models import MODELS, save_models
-from train_2 import train_models
+from train_test import train_models
 from viz import model_results, graph_dp, graph_eo
+
+# Script for training neural net with all fairness constraints
 
 if __name__ == '__main__':
     data = data_preprocess(DATA_PATH)

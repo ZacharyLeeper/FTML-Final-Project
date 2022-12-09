@@ -1,94 +1,124 @@
-from fairlearn.reductions import GridSearch, DemographicParity, EqualizedOdds
-from sklearn.ensemble import VotingRegressor
-from sklearn.metrics import f1_score, accuracy_score
-from sklearn.model_selection import cross_validate
+from fairlearn.reductions import GridSearch, EqualizedOdds
+from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import accuracy_score
 from models import all_models
-import random
 
 import numpy as np
 
 def train_models(data, labels):
     trained_models = []
     thresholds = []
-    for model, constraint in all_models():
-        # model.fit(data, labels)
-        # scores = cross_validate(model, data, labels, return_estimator=True)
-        # models = scores['estimator']
-        # print(scores)
-        # model = VotingRegressor(scores['estimator'])
-        # model.fit(data, labels)
-        if constraint:
-            model = GridSearch(model, constraint)
+    for model, _ in all_models():
+        if not isinstance(model, MLPRegressor):
+            # This was meant for a comparison between a black-box NN
+            # and a white-box logistic regression model.
+            # We didn't have the time or number of participants
+            # required to make use of it, so just ignore it.
+            model = GridSearch(model, EqualizedOdds())
             model.fit(data, labels, sensitive_features=data['Gender'])
-            trained_models.append(model)
-            pred = model.predict(data)
-            m_idx = data['Gender'] == 1
-            f_idx = data['Gender'] == 0
-            m_pred = pred[m_idx]
-            f_pred = pred[f_idx]
-
-            sub_m_pred = np.sort(m_pred[labels[m_idx] == 1])
-            sub_f_pred = np.sort(f_pred[labels[f_idx] == 1])
-
-            m_threshold1 = sub_m_pred[int(sub_m_pred.shape[0] * 0.18)]
-            f_threshold1 = sub_f_pred[int(sub_f_pred.shape[0] * 0.18)]
-            if isinstance(constraint, DemographicParity):
-                thresholds.append([m_threshold1, m_threshold1, f_threshold1, f_threshold1])
-            if isinstance(constraint, EqualizedOdds):
-                sub_m_pred = np.sort(m_pred[labels[m_idx] == 0])
-                sub_f_pred = np.sort(f_pred[labels[f_idx] == 0])
-                m_threshold2 = sub_m_pred[int(sub_m_pred.shape[0] * 0.82)]
-                f_threshold2 = sub_f_pred[int(sub_f_pred.shape[0] * 0.82)]
-                m_min, m_max = min(m_threshold1, m_threshold2), max(m_threshold1, m_threshold2)
-                f_min, f_max = min(f_threshold1, f_threshold2), min(f_threshold1, f_threshold2)
-                thresholds.append([m_min, m_max, f_min, f_max])
         else:
-            # print("Number of Non Defaulters: ", np.sum(labels == 1), "Number of Defaulters: ", np.sum(labels == 0))
             model.fit(data, labels)
-            trained_models.append(model)
-            pred = model.predict(data)
-            sub_pred = pred[labels == 1]
-            sorted_pred = np.sort(sub_pred)
-            threshold = sorted_pred[int(sub_pred.shape[0] * 0.18)]
-            # print("Number of Non Defaulters accepted: ", np.sum(pred[labels == 1] >= threshold), "Number of Defaulters accepted: ", np.sum(pred[labels == 0] >= threshold))
-            # print("Number of Non Defaulters denied: ", np.sum(pred[labels == 1] < threshold), "Number of Defaulters denied: ", np.sum(pred[labels == 0] < threshold))
-            thresholds.append([threshold] * 4)
-    return trained_models, thresholds
 
-def eval_models(models, thresholds, data, labels):
-    accuracy = []
-    m_accuracy = []
-    f_accuracy = []
-    for model, (m_l, m_h, f_l, f_h) in zip(models, thresholds):
         pred = model.predict(data)
-        # pred[data['Gender'] == 1] = pred[data['Gender'] == 1] >= m_thresh
-        # pred[data['Gender'] == 0] = pred[data['Gender'] == 0] >= f_thresh
-        # print(pred)
-        if m_l == m_h:
-            pred[data['Gender'] == 1] = pred[data['Gender'] == 1] >= m_l
-            pred[data['Gender'] == 0] = pred[data['Gender'] == 0] >= f_l
-        else:
-            for i in range(pred.shape[0]):
-                if i in data['Gender'] == 1:
-                    if pred[i] > m_h:
-                        pred[i] = 1
-                    elif pred[i] < m_l:
-                        pred[i] = 0
-                    else:
-                        pred[i] = random.randint(0, 1)
-                else:
-                    if pred[i] > f_h:
-                        pred[i] = 1
-                    elif pred[i] < f_l:
-                        pred[i] = 0
-                    else:
-                        pred[i] = random.randint(0, 1)
 
-        accuracy.append(f1_score(labels, pred))
-        m_accuracy.append(f1_score(labels[data['Gender'] == 1], pred[data['Gender'] == 1]))
-        f_accuracy.append(f1_score(labels[data['Gender'] == 0], pred[data['Gender'] == 0]))
-    print(accuracy)
-    # print(m_accuracy)
-    # print(f_accuracy)
-    raise Exception("HERE")
-    return accuracy
+        m_idx = data['Gender'] == 1
+        f_idx = data['Gender'] == 0
+        m_pred = pred[m_idx]
+        f_pred = pred[f_idx]
+
+        m_label = labels[m_idx]
+        f_label = labels[f_idx]
+
+        m_tp_label = m_label == 1
+        m_tn_label = m_label == 0
+
+        f_tp_label = f_label == 1
+        f_tn_label = f_label == 0
+
+        m_pos = m_pred[m_tp_label]
+        m_neg = m_pred[m_tn_label]
+
+        f_pos = f_pred[f_tp_label]
+        f_neg = f_pred[f_tn_label]
+
+        for constraint in ['none', 'dp', 'eo']:
+            # No fairness constraint
+            if constraint == 'none':
+                if not isinstance(model, MLPRegressor):
+                    continue
+                best_accuracy = 0
+                best_threshold = -1
+                for t in np.linspace(np.min(pred), np.max(pred)):
+                    acc = accuracy_score(labels, pred >= t)
+                    if acc > best_accuracy:
+                        best_accuracy = acc
+                        best_threshold = t
+                    
+                trained_models.append(model)
+                thresholds.append((best_threshold,best_threshold,best_threshold,best_threshold))
+            # Demographic Parity constraint
+            elif constraint == 'dp':
+                if not isinstance(model, MLPRegressor):
+                    continue
+                violation_tolerance = 0.01
+                best_accuracy = 0
+                best_m_t = -1
+                best_f_t = -1
+                for t1 in np.linspace(np.min(m_pred), np.max(m_pred)):
+                    for t2 in np.linspace(np.min(f_pred), np.max(f_pred)):
+                        acc = np.sum(m_pos >= t1) + np.sum(m_neg < t1) + np.sum(f_pos >= t2) + np.sum(f_neg < t2)
+                        acc /= labels.shape[0]
+                        m_dp = np.sum(m_pred >= t1)/m_label.shape[0]
+                        f_dp = np.sum(f_pred >= t2)/f_label.shape[0]
+                        violation = np.abs(m_dp - f_dp)
+                        if violation < violation_tolerance and acc > best_accuracy:
+                            best_accuracy = acc
+                            best_m_t = t1
+                            best_f_t = t2
+
+                trained_models.append(model)
+                thresholds.append((best_m_t, best_m_t, best_f_t, best_f_t))
+            # Equalized Odds constraint
+            elif constraint == 'eo':
+                violation_tolerance = 0.01
+                best_accuracy = 0
+                best_m_t1 = 0.51
+                best_m_t2 = -1
+                best_f_t1 = 0.51
+                best_f_t2 = -1
+                for t1 in np.linspace(np.min(m_pred), np.max(m_pred)):
+                    for t2 in np.linspace(np.min(f_pred), np.max(f_pred)):
+                        acc = np.sum(m_pos >= t1) + np.sum(m_neg < t1) + np.sum(f_pos >= t2) + np.sum(f_neg < t2)
+                        acc /= labels.shape[0]
+                        m_tp = np.sum(m_pos >= t1)
+                        m_fp = np.sum(m_neg >= t1)
+                        m_tn = np.sum(m_neg < t1)
+                        m_fn = np.sum(m_pos < t1)
+                        m_tpr = m_tp/(m_tp + m_fn)
+                        m_fpr = m_fp/(m_fp + m_tn)
+
+                        f_tp = np.sum(f_pos >= t2)
+                        f_fp = np.sum(f_neg >= t2)
+                        f_tn = np.sum(f_neg < t2)
+                        f_fn = np.sum(f_pos < t2)
+                        f_tpr = f_tp/(f_tp + f_fn)
+                        f_fpr = f_fp/(f_fp + f_tn)
+                        if np.abs(m_tpr - f_tpr) < violation_tolerance and np.abs(m_fpr - f_fpr) < violation_tolerance and acc > best_accuracy:
+                            best_accuracy = acc
+                            best_m_t1 = t1
+                            best_f_t1 = t2
+                            best_m_t2 = t1
+                            best_f_t2 = t2
+
+                if best_m_t1 > best_m_t2:
+                    temp = best_m_t2
+                    best_m_t2 = best_m_t1
+                    best_m_t1 = temp
+                if best_f_t1 > best_f_t2:
+                    temp = best_f_t2
+                    best_f_t2 = best_f_t1
+                    best_f_t1 = temp
+                trained_models.append(model)
+                thresholds.append((best_m_t1, best_m_t2, best_f_t1, best_f_t2))
+
+    return trained_models, thresholds
