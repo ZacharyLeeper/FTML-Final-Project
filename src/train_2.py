@@ -103,14 +103,15 @@ def train_models(data, labels):
                         f_fn = np.sum(f_pos < t2)
                         f_tpr = f_tp/(f_tp + f_fn)
                         f_fpr = f_fp/(f_fp + f_tn)
-                        if np.abs(m_tpr - f_tpr) < violation_tolerance and acc > best_accuracy:
-                            print('tpr', np.abs(m_tpr - f_tpr))
+                        if np.abs(m_tpr - f_tpr) < violation_tolerance and np.abs(m_fpr - f_fpr) < violation_tolerance and acc > best_accuracy:
+                            print('tpr', np.abs(m_tpr - f_tpr), m_tpr, f_tpr, acc)
+                            print('fpr', np.abs(m_fpr - f_fpr), m_fpr, f_fpr)
                             best_accuracy = acc
                             best_m_t1 = t1
                             best_f_t1 = t2
-                        if np.abs(m_fpr - f_fpr) < violation_tolerance and acc >= best_accuracy:
-                            print('fpr', np.abs(m_fpr - f_fpr))
-                            best_accuracy = acc
+                        # if  and acc >= best_accuracy:
+                            # print('fpr', np.abs(m_fpr - f_fpr))
+                            # best_accuracy = acc
                             best_m_t2 = t1
                             best_f_t2 = t2
 

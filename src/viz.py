@@ -107,8 +107,9 @@ def graph_eo(ax, results):
 
     ax.legend(['Male', 'Female'])
     ax.set_ylabel('Proportion of Accepted Applications')
-    ax.set_title('Loans Received by Sex')
+    ax.set_title('Loans Applications Accepted')
     ax.set_xticks([0, 1, 0.5, 1.5], labels=[*(['Will Pay Back']*2),*(['Will Default']*2)])
+    ax.tick_params(labelrotation=35.0)
     labels = [i*10 for i in range(1,11)]
     ax.set_yticks([i/100 for i in labels], labels=[f'{i}%' for i in labels])
 
