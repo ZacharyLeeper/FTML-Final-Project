@@ -1,4 +1,5 @@
 # FTML-Final-Project
+This project was done by Zachary Leeper and Sai Kiran Maddela.
 
 This repo served as our project for Fair and Transparent Machine Learning during the Fall 2022 semester.
 In this project, we trained a neural network under various fairness constraints and ran an HCI study
